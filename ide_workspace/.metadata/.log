@@ -454,3 +454,18 @@ org.eclipse.cdt.managedbuilder.core.BuildException: Unknown serialized value typ
 
 !ENTRY org.eclipse.cdt.core 1 0 2021-10-17 14:45:58.229
 !MESSAGE Indexed 'nucleo-basic' (135 sources, 317 headers) in 12.2 sec: 20,394 declarations; 117,592 references; 2 unresolved inclusions; 152 syntax errors; 191 unresolved names (0.14%)
+!SESSION 2021-10-21 11:24:51.969 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_GB
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-10-21 11:25:15.849
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-10-21 11:25:16.087
+!MESSAGE Log4j initialized with config file D:\5 semestr\TM\AGH_TM_2021\ide_workspace\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-10-21 11:25:36.360
+!MESSAGE Started RMI Server, listening on port 41337

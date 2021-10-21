@@ -99,9 +99,9 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
-//  debug_init(&huart3);
-//  xprintf(ANSI_BG_BLUE "Nucleo-144 project" ANSI_BG_DEFAULT "\n");
-//  printf("Zwykly printf tez dziala\n");
+  debug_init(&huart3);
+  xprintf(ANSI_BG_BLUE "Nucleo-144 project" ANSI_BG_DEFAULT "\n");
+  printf("Zwykly printf tez dziala\n");
 
   /* USER CODE END 2 */
 
