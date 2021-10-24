@@ -27,7 +27,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "dbgu.h"
+#include "term_io.h"
+#include "ansi.h"
+#include "usbh_platform.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +67,16 @@ void StartDefaultTask(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// 10.1 Modyfikacje w Src/main.c
+extern ApplicationTypeDef Appli_state;
+
+// Obserwacja zawartości rejestrów
+int foo(int a, int b)
+{
+int c;
+c=a+b;
+return c;
+}
 
 /* USER CODE END 0 */
 
@@ -98,8 +111,25 @@ int main(void)
   MX_USART3_UART_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
+  debug_init(&huart3);
+  xprintf(ANSI_BG_BLUE "Nucleo-144 project" ANSI_BG_DEFAULT "\n");
+  printf("Zwykly printf tez dziala\n");
 
-  /* USER CODE END 2 */
+
+// Obserwacja zawartości rejestrów
+  // int a=10;
+  // int b=25;
+  // while(1)
+  // {
+  // xprintf("a=%d, b=%d\n",a,b);
+  // int res = foo(a,b);
+  // a++;
+  // b--;
+  // xprintf("res=%2d\n",res);
+  // HAL_Delay(1000);
+  // }
+  // END OF Obserwacja zawartości rejestrów
+/* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -287,12 +317,90 @@ void StartDefaultTask(void const * argument)
   /* init code for USB_HOST */
   MX_USB_HOST_Init();
   /* USER CODE BEGIN 5 */
+
+  // 10.1 Modyfikacje w Src/main.c
+// MX_DriverVbusFS(0);   //wlacza zasilanie urzadzenia USB
+// xprintf("waiting for USB device...");
+//     do{
+//     xprintf(".");
+//     vTaskDelay(100);
+//   }while(Appli_state != APPLICATION_READY);
+//   xprintf("USB device ready!");
+
+  /* Infinite loop */
+//   for(;;)
+//   {
+//     osDelay(10);
+//     char key = inkey();
+//     switch(key)
+//     {
+// case 'w':
+// {
+//   xprintf("write test\n");
+//   FRESULT res;
+//   UINT bw;
+//   FIL file;
+//   const char* text = "Linijka tekstu!\n";
+//   xprintf("f_open... ");
+//   res = f_open(&file,"0:/test.txt",FA_WRITE|FA_OPEN_APPEND);
+//   xprintf("res=%d\n",res);
+//   if(res) break;
+//   xprintf("f_write... ");
+//   res = f_write(&file,text,strlen(text),&bw);
+//   xprintf("res=%d, bw=%d\n",res,bw);
+//   f_close(&file);
+//   break;
+// }
+
+
+// case 'r':
+// {
+//   xprintf("read test!\n");
+//   FIL file;
+//   FRESULT res = f_open(&file,"0:/test.txt",FA_READ);
+//   xprintf("f_open res=%d\n",res);
+//   if(res) break;
+//   const uint32_t BUF_SIZE = 64;
+//   char buf[BUF_SIZE];
+//   UINT br;
+//   xprintf("reading file contents:\n");
+//   do
+//   {
+// res = f_read(&file,buf,BUF_SIZE,&br);
+// if((res == FR_OK) && (br))
+// {
+//   xprintf("chunk:\n");
+//   debug_dump(buf,br);
+// }
+// else
+// {
+//   xprintf("f_read res=%d\n",res);
+//   break;
+// }
+//   }while(br>0);
+//   f_close(&file);
+//   break;
+// }
+
+//     }
+//   }
+
+// END of Modyfikacje w Src/main.c
+
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+// LED
+
+//LD3 zmieni stan (toggle)
+    HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
+    //LD2 wlaczona, czekamy 250 tickow i wylaczamy
+    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+          osDelay(250);
+    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+          osDelay(250);
   }
-  /* USER CODE END 5 */
+  /* USER CODE END 5 */ 
 }
 
 /**
