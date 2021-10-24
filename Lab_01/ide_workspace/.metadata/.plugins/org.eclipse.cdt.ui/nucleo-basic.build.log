@@ -1,0 +1,15 @@
+12:41:15 **** Incremental Build of configuration Debug for project nucleo-basic ****
+make -j8 all 
+arm-none-eabi-size   nucleo-basic.elf 
+   text	   data	    bss	    dec	    hex	filename
+ 127580	    172	  65684	 193436	  2f39c	nucleo-basic.elf
+Finished building: default.size.stdout
+ 
+arm-atollic-eabi-objcopy.exe -O ihex "nucleo-basic.elf" "nucleo-basic.hex"
+c:/st/stm32cubeide_1.7.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.make.win32_2.0.0.202105311346/tools/bin/sh: arm-atollic-eabi-objcopy.exe: not found
+make[1]: *** [makefile:113: post-build] Error 127
+make: *** [makefile:81: all] Error 2
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+12:41:19 Build Failed. 2 errors, 0 warnings. (took 4s.541ms)
+
