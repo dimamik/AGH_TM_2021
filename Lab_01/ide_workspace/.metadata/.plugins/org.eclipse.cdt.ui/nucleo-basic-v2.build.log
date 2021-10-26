@@ -1,0 +1,12 @@
+19:33:17 **** Incremental Build of configuration Debug for project nucleo-basic-v2 ****
+make all 
+arm-none-eabi-size   nucleo-basic-v2.elf 
+   text	   data	    bss	    dec	    hex	filename
+ 127548	    172	  65684	 193404	  2f37c	nucleo-basic-v2.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy.exe -O ihex "nucleo-basic-v2.elf" "nucleo-basic-v2.hex"
+ 
+
+19:33:22 Build Finished. 0 errors, 0 warnings. (took 4s.349ms)
+

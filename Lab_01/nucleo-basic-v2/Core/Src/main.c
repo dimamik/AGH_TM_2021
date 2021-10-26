@@ -30,7 +30,7 @@
 #include "dbgu.h"
 #include "term_io.h"
 #include "ansi.h"
-#include "usbh_platform.h"
+//#include "usbh_platform.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
