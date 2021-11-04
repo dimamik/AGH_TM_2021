@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2016.4 (64-bit)
+# SW Build 1756540 on Mon Jan 23 19:11:19 MST 2017
+# IP Build 1755317 on Mon Jan 23 20:30:07 MST 2017
+# Start of session at: Thu Nov  4 11:54:02 2021
+# Process ID: 3548
+# Current directory: /home/student/Dzmitry_Mikialevich/dzmitrymikialevich/dzmitrymikialevich.runs/synth_1
+# Command line: vivado -log toplevel.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source toplevel.tcl
+# Log file: /home/student/Dzmitry_Mikialevich/dzmitrymikialevich/dzmitrymikialevich.runs/synth_1/toplevel.vds
+# Journal file: /home/student/Dzmitry_Mikialevich/dzmitrymikialevich/dzmitrymikialevich.runs/synth_1/vivado.jou
+#-----------------------------------------------------------
+source toplevel.tcl -notrace

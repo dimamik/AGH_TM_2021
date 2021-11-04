@@ -135,4 +135,5 @@
 "./Middlewares/Third_Party/LwIP/system/OS/sys_arch.o"
 "./USB_HOST/App/usb_host.o"
 "./USB_HOST/Target/usbh_conf.o"
+"./USB_HOST/Target/usbh_platform.o"
 "./startup/startup_stm32f429xx.o"

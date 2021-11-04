@@ -53,7 +53,8 @@ USB_HOST/Target/usbh_conf.o: ../USB_HOST/Target/usbh_conf.c \
  ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_ioreq.h \
  ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_core.h \
  ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_pipes.h \
- ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_ctlreq.h
+ ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_ctlreq.h \
+ ../USB_HOST/Target/usbh_platform.h ../USB_HOST/App/usb_host.h
 
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_core.h:
 
@@ -166,3 +167,7 @@ USB_HOST/Target/usbh_conf.o: ../USB_HOST/Target/usbh_conf.c \
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_pipes.h:
 
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Inc/usbh_ctlreq.h:
+
+../USB_HOST/Target/usbh_platform.h:
+
+../USB_HOST/App/usb_host.h:

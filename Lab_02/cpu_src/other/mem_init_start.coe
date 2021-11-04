@@ -1,0 +1,2 @@
+memory_initialization_radix=16;
+memory_initialization_vector=80 90 86 DE 02 EE 00 00 00 00 00 00 05 00 00 00;

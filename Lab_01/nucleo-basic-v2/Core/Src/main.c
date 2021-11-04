@@ -117,19 +117,19 @@ int main(void)
 
 
 // Obserwacja zawartości rejestrów
-  // int a=10;
-  // int b=25;
-  // while(1)
-  // {
-  // xprintf("a=%d, b=%d\n",a,b);
-  // int res = foo(a,b);
-  // a++;
-  // b--;
-  // xprintf("res=%2d\n",res);
-  // HAL_Delay(1000);
-  // }
+//   int a=10;
+//   int b=25;
+//   while(1)
+//   {
+//   xprintf("a=%d, b=%d\n",a,b);
+//   int res = foo(a,b);
+//   a++;
+//   b--;
+//   xprintf("res=%2d\n",res);
+//   HAL_Delay(1000);
+//   }
   // END OF Obserwacja zawartości rejestrów
-/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -149,7 +149,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 1024);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 2048);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -400,7 +400,7 @@ void StartDefaultTask(void const * argument)
     HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
           osDelay(250);
   }
-  /* USER CODE END 5 */ 
+  /* USER CODE END 5 */
 }
 
 /**
