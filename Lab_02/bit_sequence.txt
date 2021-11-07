@@ -1,0 +1,16 @@
+80 - 10000000 (Wyczyszczamy rejestr 0)
+90 - 10010000 (Wyczyszczamy rejestr 1)
+86 - 10000110 (Ustawiamy rejestr 0 na 6)
+DD - 11011101 (Wczytujemy addr_13 do R1)
+20 - 00100000 (Dodajemy do R0 R1 i zapisujemy do R0)
+EE - 11101110 (Zapisujemy zawartosc rejestru R0 do 14 adresu)
+00 - Zapętlenie (powrót do 1 addr)
+00
+00
+00
+00
+00
+05
+00
+00
+00
