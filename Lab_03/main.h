@@ -400,7 +400,7 @@ by setting it to nonzero we rely on CubeMX clock settings for LCD
 #define LD1_TOGGLE  HAL_GPIO_TogglePin(GPIOI,GPIO_PIN_1);
 
 //do not start LwIP - takes more time to initialize
-#define CFG_DISABLE_LWIP    1
+#define CFG_DISABLE_LWIP    0
 
 
 /* USER CODE END Private defines */

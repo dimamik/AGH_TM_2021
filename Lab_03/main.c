@@ -1971,31 +1971,64 @@ static void http_server_netconn_thread(void const *arg)
 
 static void lcd_start(void)
 {
-  BSP_LCD_Init();
+  BSP_LCD_Init(); //Zainicjuj wyświetlacz LCD za pomocą funkcji BSP_LCD_Init().
 
-  BSP_LCD_LayerDefaultInit(LCD_LAYER_FG, (uint32_t)lcd_image_fg);
-  BSP_LCD_LayerDefaultInit(LCD_LAYER_BG, (uint32_t)lcd_image_bg);
+  // zainicjuj dwie warstwy lcd
+  BSP_LCD_LayerDefaultInit(LCD_LAYER_FG, (uint32_t)lcd_image_fg); // pierwszoplanowa
+  BSP_LCD_LayerDefaultInit(LCD_LAYER_BG, (uint32_t)lcd_image_bg); // drugoplanowa
 
-  BSP_LCD_DisplayOn();
+  BSP_LCD_DisplayOn(); //Włącz wyświetlacz LCD za pomocą funkcji BSP_LCD_DisplayOn().
 
-  BSP_LCD_SelectLayer(LCD_LAYER_BG);
-  BSP_LCD_Clear(LCD_COLOR_WHITE);
-  BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+  BSP_LCD_SelectLayer(LCD_LAYER_BG); //Wybierz warstwę LCD, która ma być używana za pomocą funkcji BSP_LCD_SelectLayer().
+  BSP_LCD_Clear(LCD_COLOR_WHITE); //Wyczyść cały wyświetlacz LCD za pomocą funkcji BSP_LCD_Clear()
+  BSP_LCD_SetBackColor(LCD_COLOR_WHITE); // ustaw kolor tla
 
-  BSP_LCD_SelectLayer(LCD_LAYER_FG);
-  BSP_LCD_Clear(LCD_COLOR_WHITE);
-  BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+  BSP_LCD_SelectLayer(LCD_LAYER_FG); //Wybierz warstwę LCD, która ma być używana
+  BSP_LCD_Clear(LCD_COLOR_WHITE); //Wyczyść cały wyświetlacz LCD
+  BSP_LCD_SetBackColor(LCD_COLOR_WHITE); // ustaw kolor tla
 
-  BSP_LCD_SetColorKeying(LCD_LAYER_FG,LCD_COLOR_WHITE);
+  BSP_LCD_SetColorKeying(LCD_LAYER_FG,LCD_COLOR_WHITE); // konfiguracja i wlaczenie funkcji color keying
 
-  BSP_LCD_SetTransparency(LCD_LAYER_BG,255);
+  BSP_LCD_SetTransparency(LCD_LAYER_BG,255); //Skonfiguruj przezroczystość pierwszego planu: zwiększ przezroczystość (w tym przypadku chyba ustaw na 100% - czyli brak przezroczystosci)
   BSP_LCD_SetTransparency(LCD_LAYER_FG,255);
 }
 
 void draw_background(void)
 {
 	  //enter your code to draw a beautiful background picture :)
+  BSP_LCD_SelectLayer(LCD_LAYER_BG); // wybieram warstwe tła - na niej jest rysowanie (jak sama nazwa funkcji wskazuje)
+  BSP_LCD_SetTextColor(LCD_COLOR_RED); // ustawiam kolor na czerwony, zgodnie ze wskazówką, może być dowolny inny
+  BSP_LCD_FillRect(0, 0, 50, 50); // rysuje czerwony kwadrat, o wymiarach 50x50 (50 to strzał bo nie wiem jak sie wyswietli, więc to do ewentualnej poprawy)
+  // BSP_LCD_FillRect to funkcja dostepna w Drivers -> STM32... -> (...)_lcd.c
 
+
+  // teraz rysowanie koła:
+  BSP_LCD_SetTextColor(LCD_COLOR_GREEN); // niech będzie zielone
+  BSP_LCD_FillCircle(100, 100, 50); // rysuje koło w punkcie (100, 100) o promieniu 50
+
+
+  // a teraz trapez:
+  // nie ma funkcji gotowej żeby to zrobić, ale jest funkcja FillPolygon, która rysuje na zasadzie "Połącz kropki"
+  // zatem trzeba mu podać punkty
+  Point trapezoidPoints[4]; // struktura Point jest w pliku (...)_lcd.h
+  // budowa trapezu jest w pdfie, który dorzuciłem
+  trapezoidPoints[0].X = 100;
+  trapezoidPoints[0].Y = 0;
+
+  trapezoidPoints[1].X = 150;
+  trapezoidPoints[1].Y = 0;
+
+  trapezoidPoints[2].X = 125;
+  trapezoidPoints[2].Y = 40;
+
+  trapezoidPoints[3].X = 100;
+  trapezoidPoints[3].Y = 40;
+
+  BSP_LCD_SetTextColor(LCD_COLOR_ORANGE); // niech będzie pomarańczowy
+  BSP_LCD_FillPolygon(trapezoidPoints, 4); // FillPolygon przyjmuje po prostu punkty które ma połączyć
+
+
+  // można dorzucić wiecej lub zmienić rozmiar tych powyżej, ale nie wiem jaki jest rozmiar wyświetlacza - strzelam że max punkt na wyświetlaczu to (480, 272)
 }
 
 int moveCursor(int xShift, int yShift)
@@ -2029,8 +2062,22 @@ void putcursor(void)
     if( cursorY <= SIZE ) cursorY = SIZE+1;
     if( cursorY >= (LCD_Y_SIZE - SIZE - 1) ) cursorY=LCD_Y_SIZE-SIZE-1;
 
-    BSP_LCD_SelectLayer(LCD_LAYER_FG);
     BSP_LCD_Clear(LCD_COLOR_WHITE);
+
+    // w tym miejscu dodaje rysowanie backgroundu, bo jak nie dodamy to kursor sie pojawi najpierw, a potem background - czyli kursor pod obrazkiem
+    draw_background();
+
+    BSP_LCD_SelectLayer(LCD_LAYER_FG);
+
+    // 3.5 zmiana poziomu przezroczystosci kursora
+    /*
+     * 128 = 50% przezroczystosci
+     * 64 = 25%
+     * 192 = 75%
+     * 223 = 87.5%
+     * */
+    //BSP_LCD_SetTransparency(LCD_LAYER_FG, 64);
+
     BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
     BSP_LCD_FillCircle( cursorX, cursorY , SIZE );
 
@@ -2205,6 +2252,16 @@ void StartDefaultTask(void const * argument)
     LD1_TOGGLE; /* Just blink to say "I'm alive" */
 
     //a recommended line to read the touch screen :)
+    // kod z instrukcji
+    TS_StateTypeDef TS_State;
+    BSP_TS_GetState(&TS_State);
+    if( TS_State.touchDetected )
+    {
+    cursorX = TS_State.touchX[0];
+    cursorY = TS_State.touchY[0];
+    cursorUpd = 1;
+    }
+    putcursor();
 
     char key = debug_inkey();
     serialTestComm(key);

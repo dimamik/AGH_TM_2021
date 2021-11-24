@@ -1,0 +1,36 @@
+main.h, main.c
+
+
+Kodowania kolorów:
+1. RGB:
+	- red: (255, 0, 0), #FF0000
+	- green: (0,255, 0), #00FF00
+	- blue: (0, 0,255), #0000FF
+2. CMY:
+	- cyan: #00ffff
+	- magenta: #ff00ff
+	- yellow: #ffff00
+3. white: #ffffff
+4. black: #000000
+
+5. kodowanie przezroczystości: dodaje się jeden dodatkowy bit na początku hex code'u
+ - jak wyznaczyć wartosć tego bitu: mnożymy % i 255. np 25% to 255*0.25 = 63,75. A 63 w hex to 3F, 64 to 40. więc będzie to wartość 3F lub 40
+	
+	https://stackoverflow.com/questions/23201134/transparent-argb-hex-value
+	
+
+
+color keying - zakłada, że możliwe są tylko dwie wartości: albo dany piksel jest przezroczysty albo nie
+
+
+Kółko i krzyżyk:
+1. pamiętać o sprawdzeniu co gdy gracz kliknie w już zajęte pole
+2. zrobić tablicę 3x3 wypełnioną zerami
+3. zdefiniować (#define) kółko jako 1 i krzyzyk jako 2;
+4. zdefiniować player1 i player2 żeby zarządzać kolejnością
+5. odczytywać jakoś za pomocą cursorX i cursorY gdzie player kliknął i wpisać w odpowiednie miejsce w tabeli odpowiedni znak
+6. po każdej turze wykonać draw_background które będzie odwzorowywać tablicę 3x3
+7. sprawdzić czy jest zwyciezca (obie przekątne, poziomo i pionowo) po każdym kliknięciu
+8. co do draw_background - można użyć fillPolygon i podać dwa punkty i w ten sposób narysować kreskę pionową i poziomą żeby odpowiednio zaznaczyć pola
+9. jeżeli pole w tablicy 3x3 jest 0 (czyli brak znaku) to rysować tam spację
+10. do drukowania X, O i spacji można użyć (chyba można) DrawChar z pliku (...)_lcd.c
