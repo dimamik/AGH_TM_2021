@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/lib3.dir/stm32f7xx_hal_ltdc_ex.c.o  -o lib3 
