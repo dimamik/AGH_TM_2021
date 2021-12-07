@@ -1,0 +1,27 @@
+// line 420
+    xTaskCreate(semTaskA, NULL, configMINIMAL_STACK_SIZE+20, NULL, 1, NULL);
+    xTaskCreate(semTaskB, NULL, configMINIMAL_STACK_SIZE+20, NULL, 2, NULL);
+	
+// line 204
+xSemaphoreCreateBinary(labSemaphore);
+
+// line 145
+void semTaskA(void *parameters){
+    xSemaphoreTake(labSemaphore, ( TickType_t ) 110); // 110 asekuracyjnie
+
+    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+    vTaskDelay(100);
+    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+
+    xSemaphoreGive( labSemaphore );
+    vTaskDelay(200);
+}
+void semTaskB(void *parameters){
+    xSemaphoreTake(labSemaphore, ( TickType_t ) 4010);
+    HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,GPIO_PIN_SET);
+    vTaskDelay(4000);
+    HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,GPIO_PIN_RESET);
+    xSemaphoreGive( labSemaphore );
+
+    vTaskDelay(1000);
+}

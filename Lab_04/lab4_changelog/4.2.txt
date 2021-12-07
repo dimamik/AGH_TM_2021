@@ -1,0 +1,38 @@
+xTaskHandle messageTaskHandler;
+void messageTask(void *parameters){
+	portTickType xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount(); //pobieramy aktualny czas
+	while(1){
+        char buffer;
+        if(xQueueReceive(loopQueue, buffer, portMAX_DELAY) == pdTRUE){
+            xprintf("odebrano znak: %c\n", buffer);
+        }
+
+
+		vTaskDelayUntil( &xLastWakeTime, 1000 );
+		xprintf("Current systime is: %05d\n",(int)xTaskGetTickCount());
+		//udajemy poważne obliczenia:
+		volatile int i = 1000000;
+		while(i--) asm("nop"); //milion razy instrukcja „no-operation”
+	}
+
+}
+
+void ledTask(void *parameters){
+    loopQueue = xQueueCreate( 5, sizeof(char));
+
+	while(1){
+        char fromTerminal = inkey(); // dbgu.h
+
+        if(fromTerminal != 0){
+            if(xQueueSend(loopQueue, fromTerminal) != pdTRUE){ // czy potrzeba dodać jeszcze null jako ostatni parametr?
+                xprintf("Kolejka jest przepelniona!\n");
+            }
+        }
+
+		vTaskDelay(4);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+		vTaskDelay(6);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+	}
+}

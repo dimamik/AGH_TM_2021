@@ -1,0 +1,28 @@
+
+// line 100
+xTaskHandle messageTaskHandler;
+void messageTask(void *parameters){
+	portTickType xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount(); //pobieramy aktualny czas
+	while(1){
+		vTaskDelayUntil( &xLastWakeTime, 1000 );
+		xprintf("Current systime is: %05d\n",(int)xTaskGetTickCount());
+		//udajemy poważne obliczenia:
+		volatile int i = 1000000;
+		while(i--) asm("nop"); //milion razy instrukcja „no-operation”
+	}
+
+}
+
+void ledTask(void *parameters){
+	while(1){
+		vTaskDelay(10);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+		vTaskDelay(50);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+	}
+}
+
+	// line 381
+	xTaskCreate( messageTask, NULL, configMINIMAL_STACK_SIZE+20, NULL, 1, messageTaskHandler);
+	xTaskCreate( ledTask, NULL, configMINIMAL_STACK_SIZE+20, NULL, 3, NULL);

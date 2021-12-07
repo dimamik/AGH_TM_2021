@@ -1,0 +1,25 @@
+void ledTask(void *parameters){
+    loopQueue = xQueueCreate( 5, sizeof(char));
+
+	while(1){
+        char fromTerminal = inkey(); // dbgu.h
+
+        if(fromTerminal == 's'){
+            vTaskSuspend(messageTaskHandler);
+        }
+        else if(fromTerminal == 'r'){
+            vTaskResume(messageTaskHandler);
+        }
+        else if(fromTerminal != 0){
+            if(xQueueSend(loopQueue, fromTerminal) != pdTRUE){ // czy potrzeba dodać jeszcze null jako ostatni parametr?
+                xprintf("Kolejka jest przepelniona!\n");
+            }
+        }
+
+
+		vTaskDelay(4);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+		vTaskDelay(6);
+		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+	}
+}
