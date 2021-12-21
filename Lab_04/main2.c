@@ -98,16 +98,19 @@ void StartDefaultTask(void const * argument);
 
 
 xTaskHandle messageTaskHandler;
+xTaskHandle ledTaskHandler;
 
 
 
 void messageTask(void *parameters){
-	portTickType xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount(); //pobieramy aktualny czas
+	// portTickType xLastWakeTime;
+  char buffer;
+  // xLastWakeTime = xTaskGetTickCount(); //pobieramy aktualny czas
 	while(1){
-		char buffer;
-
-		if(xQueueReceive(loopQueue, &buffer, portMAX_DELAY) == pdTRUE){
+    // TODO Uncomment this to check if the task is running
+		// printf("%s", "Task Working!\n");
+    // vTaskDelayUntil(&xLastWakeTime, 1000);
+    if(xQueueReceive(loopQueue, &buffer, portMAX_DELAY) == pdTRUE){
 		            xprintf("odebrano znak: %c \n", buffer);
 		        }
 //		vTaskDelayUntil( &xLastWakeTime, 1000 );
@@ -137,7 +140,6 @@ void messageTask(void *parameters){
 
 void ledTask(void *parameters){
 
-
 	while(1){
         char fromTerminal = inkey(); // dbgu.h
 
@@ -148,16 +150,18 @@ void ledTask(void *parameters){
             vTaskResume(messageTaskHandler);
         }
         else if(fromTerminal != 0){
-            if(xQueueSend(loopQueue, &fromTerminal, NULL) != pdTRUE){ // czy potrzeba dodać jeszcze null jako ostatni parametr?
-                xprintf("Kolejka jest przepelniona!\n");
+          printf("Sending %c to messageTask\n", fromTerminal);
+          if (xQueueSend(loopQueue, &fromTerminal, NULL) != pdTRUE)
+          { // czy potrzeba dodać jeszcze null jako ostatni parametr?
+            xprintf("Kolejka jest przepelniona!\n");
             }
         }
 
 
-		vTaskDelay(4);
-		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
-		vTaskDelay(6);
-		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+		// vTaskDelay(4);
+		// HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+		// vTaskDelay(6);
+		// HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
 	}
 }
 
@@ -444,12 +448,12 @@ void StartDefaultTask(void const * argument)
    * queues, and semaphores for this lab exercise :)
    * ================================================
    */
-   xTaskCreate( ledTask, NULL, configMINIMAL_STACK_SIZE+20, NULL, 3, NULL);
-   xTaskCreate( messageTask, NULL, configMINIMAL_STACK_SIZE+20, NULL, 1, messageTaskHandler);
+  xTaskCreate(ledTask, NULL, configMINIMAL_STACK_SIZE + 20, NULL, 1, ledTaskHandler);
+  xTaskCreate(messageTask, NULL, configMINIMAL_STACK_SIZE + 20, NULL, 1, messageTaskHandler);
 
-//    xTaskCreate(semTaskA, NULL, configMINIMAL_STACK_SIZE+20, NULL, 1, NULL);
-//    xTaskCreate(semTaskB, NULL, configMINIMAL_STACK_SIZE+20, NULL, 2, NULL);
-//
+  //    xTaskCreate(semTaskA, NULL, configMINIMAL_STACK_SIZE+20, NULL, 1, NULL);
+  //    xTaskCreate(semTaskB, NULL, configMINIMAL_STACK_SIZE+20, NULL, 2, NULL);
+  //
 
 	xprintf("entering StartDefaultTask main loop");
 	xprintf("\n");
