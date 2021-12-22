@@ -119,11 +119,7 @@ void DMA1_Stream3_IRQHandler(void)
   /* USER CODE END DMA1_Stream3_IRQn 1 */
 }
 
-void My_Default_Handler(void)
-{
-	xprintf("default handler!\n");
-	while(1);
-}
+
 
 
 

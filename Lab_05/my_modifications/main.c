@@ -1,51 +1,51 @@
 
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2020 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
+ *
+ * Copyright (c) 2020 STMicroelectronics International N.V.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted, provided that the following conditions are met:
+ *
+ * 1. Redistribution of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of other
+ *    contributors to this software may be used to endorse or promote products
+ *    derived from this software without specific written permission.
+ * 4. This software, including modifications and/or derivative works of this
+ *    software, must execute solely and exclusively on microcontroller or
+ *    microprocessor devices manufactured by or for STMicroelectronics.
+ * 5. Redistribution and use of this software other than as permitted under
+ *    this license is void and will automatically terminate your rights under
+ *    this license.
+ *
+ * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+ * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+ * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
@@ -88,9 +88,8 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM2_Init(void);
-void StartDefaultTask(void const * argument);                                    
+void StartDefaultTask(void const *argument);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -103,14 +102,36 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 xTaskHandle taskMessageHandler;
 xQueueHandle loopQueue;
 xSemaphoreHandle sem_EXTI;
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  BaseType_t xHigherPriorityTaskWoken;
 
+  xSemaphoreGiveFromISR(sem_EXTI, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
 /* USER CODE END 0 */
-
+void My_Default_Handler(void)
+{
+  xprintf("my default handler!\n");
+  while (1)
+    ;
+}
+void uart_rxirq_callback(void)
+{
+  if (__HAL_UART_GET_IT_SOURCE(&huart3, UART_IT_RXNE))
+  {
+    char chr = huart3.Instance->DR;
+    BaseType_t xHigherPriorityTaskWoken;
+    xQueueSendFromISR(loopQueue, &chr, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    xprintf("RXNE, chr = %c = %02X\n", chr, (uint8_t)chr);
+  }
+}
 /**
-  * @brief  The application entry point.
-  *
-  * @retval None
-  */
+ * @brief  The application entry point.
+ *
+ * @retval None
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -143,7 +164,7 @@ int main(void)
   xprintf(ANSI_BG_MAGENTA "\nNucleo-144 F429ZI nucleo-basic-v3 project" ANSI_BG_DEFAULT "\n");
   xprintf(ANSI_FG_YELLOW "Funkcja xprintf dziala." ANSI_FG_DEFAULT "\n");
   printf(ANSI_FG_GREEN "Funkcja printf tez dziala." ANSI_FG_DEFAULT "\n");
-  __HAL_UART_ENABLE_IT(&huart3,UART_IT_RXNE);
+  __HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -170,11 +191,10 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
- 
 
   /* Start scheduler */
   osKernelStart();
-  
+
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
@@ -182,33 +202,31 @@ int main(void)
   while (1)
   {
 
-  /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-  /* USER CODE BEGIN 3 */
-
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-    /**Configure the main internal regulator output voltage 
-    */
+  /**Configure the main internal regulator output voltage
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
 
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks 
-    */
+  /**Initializes the CPU, AHB and APB busses clocks
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -222,10 +240,9 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
-    */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  /**Initializes the CPU, AHB and APB busses clocks
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -236,12 +253,12 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
-    */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  /**Configure the Systick interrupt time
+   */
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
 
-    /**Configure the Systick 
-    */
+  /**Configure the Systick
+   */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
@@ -282,7 +299,6 @@ static void MX_TIM2_Init(void)
   }
 
   HAL_TIM_MspPostInit(&htim2);
-
 }
 
 /* USART3 init function */
@@ -301,13 +317,12 @@ static void MX_USART3_UART_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
@@ -319,16 +334,15 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
-
 }
 
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
+/** Configure pins as
+ * Analog
+ * Input
+ * Output
+ * EVENT_OUT
+ * EXTI
+ */
 static void MX_GPIO_Init(void)
 {
 
@@ -343,7 +357,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin | LD3_Pin | LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
@@ -355,7 +369,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
+  GPIO_InitStruct.Pin = LD1_Pin | LD3_Pin | LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -386,73 +400,69 @@ static void MX_GPIO_Init(void)
 
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-
 }
 
 /* USER CODE BEGIN 4 */
 
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+static void ledTask(void *p)
 {
-	BaseType_t xHigherPriorityTaskWoken;
-  // 
-  xQueueSendFromISR(loopQueue, &GPIO_Pin, &xHigherPriorityTaskWoken);
-	xSemaphoreGiveFromISR( sem_EXTI, &xHigherPriorityTaskWoken );
-	portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-}
-
-
-
-static void ledTask(void* p)
-{
-  while(1)
+  while (1)
   {
-	xprintf("waiting for sem_EXTI...\n");
-	xSemaphoreTake(sem_EXTI,portMAX_DELAY);
-	xprintf("sem_EXTI has been set :)\n");
+    xprintf("waiting for sem_EXTI...\n");
+    xSemaphoreTake(sem_EXTI, portMAX_DELAY);
+    xprintf("sem_EXTI has been set :)\n");
 
-	HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
     vTaskDelay(500);
-	HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
     vTaskDelay(850);
-
   }
+
+  // TODO Zad 2
+  // char c;
+
+  // while (1)
+  // {
+  //   c = inkey();
+  //   vTaskDelay(100);
+
+  //   if (c != 0)
+  //   {
+  //     // yutaj
+  //     if (!xQueueSend(loopQueue, &c, 0))
+  //     {
+  //       xprintf("Bufor jest pełny, przychodzi znak: %c\n", c);
+  //     }
+  //   }
+  // }
 }
 
-static void messageTask(void* p)
+static void messageTask(void *p)
 {
   portTickType xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount(); //pobieramy aktualny czas
+  xLastWakeTime = xTaskGetTickCount(); // pobieramy aktualny czas
 
-  while(1)
+  while (1)
   {
-    vTaskDelayUntil( &xLastWakeTime, 1000 );
-    xprintf("Current systime is: %05d\n",(int)xTaskGetTickCount());
-    HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
 
-	char key;
-	if(xQueueReceive(loopQueue,&key,0))
-	{
-	  xprintf("Z kolejki loopQueue odebrano znak: %c\n",key);
-	}
+    // TODO Zad 1
 
+    vTaskDelayUntil(&xLastWakeTime, 1000);
+    xprintf("Current systime is: %05d\n", (int)xTaskGetTickCount());
+    HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
+    char key;
+    if (xQueueReceive(loopQueue, &key, 0))
+    {
+      xprintf("Z kolejki loopQueue odebrano znak: %c\n", key);
+    }
   }
-
 }
-
-void uart_rxirq_callback(void){
-	if(__HAL_UART_GET_IT_SOURCE(&huart3,UART_IT_RXNE))
-	{
-		char chr = huart3.Instance->DR;
-		xprintf("RXNE, chr = %c = %02X\n",chr,(uint8_t)chr);
-	}
-}
-
 
 /* USER CODE END 4 */
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
+void StartDefaultTask(void const *argument)
 {
   /* init code for USB_HOST */
   MX_USB_HOST_Init();
@@ -464,69 +474,72 @@ void StartDefaultTask(void const * argument)
   MX_LWIP_Init();
 
   /* USER CODE BEGIN 5 */
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
   /*
    * ================================================
    * This is a nice place to create additional tasks,
    * queues, and semaphores for this lab exercise :)
    * ================================================
    */
-	xprintf("creating additional tasks, queues, and semphrs...\n");
+  xprintf("creating additional tasks, queues, and semphrs...\n");
 
-	loopQueue = xQueueCreate(20,sizeof(char));
-	if(loopQueue==NULL) xprintf("Error: loopQueue is NULL\n");
+  loopQueue = xQueueCreate(20, sizeof(char));
+  if (loopQueue == NULL)
+    xprintf("Error: loopQueue is NULL\n");
 
-	sem_EXTI = xSemaphoreCreateBinary();
+  sem_EXTI = xSemaphoreCreateBinary();
 
-	if(sem_EXTI==NULL) xprintf("Error: sem_EXTI not created\n");
+  if (sem_EXTI == NULL)
+    xprintf("Error: sem_EXTI not created\n");
 
-	xSemaphoreTake(sem_EXTI,0);
+  xSemaphoreTake(sem_EXTI, 0);
 
-	xTaskCreate( ledTask, NULL, configMINIMAL_STACK_SIZE+32 , NULL, 3, NULL );
-	xTaskCreate( messageTask, NULL, configMINIMAL_STACK_SIZE+32 , NULL, 1, &taskMessageHandler );
+  xTaskCreate(ledTask, NULL, configMINIMAL_STACK_SIZE + 32, NULL, 3, NULL);
+  xTaskCreate(messageTask, NULL, configMINIMAL_STACK_SIZE + 32, NULL, 1, &taskMessageHandler);
 
-	xprintf("entering StartDefaultTask main loop");
-	xprintf("\n");
+  xprintf("entering StartDefaultTask main loop");
+  xprintf("\n");
 
-	while(1)
-	{
-	  HAL_GPIO_TogglePin(LD1_GPIO_Port,LD1_Pin);
-	  vTaskDelay(200);
-	}
+  while (1)
+  {
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+    vTaskDelay(200);
+  }
 
-  #if FREERTOS_LAB==0
+#if FREERTOS_LAB == 0
 
-	  /* Infinite loop */
-	  for(;;)
-	  {
-		//LD3 zmieni stan (toggle)
-		HAL_GPIO_TogglePin(LD3_GPIO_Port,LD3_Pin);
+  /* Infinite loop */
+  for (;;)
+  {
+    // LD3 zmieni stan (toggle)
+    HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 
-		//LD2 wlaczona, czekamy 250 tickow i wylaczamy
-		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
-		osDelay(250);
-		HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
-		osDelay(250);
-	  }
-  #endif
+    // LD2 wlaczona, czekamy 250 tickow i wylaczamy
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    osDelay(250);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+    osDelay(250);
+  }
+#endif
 
-  /* USER CODE END 5 */ 
+  /* USER CODE END 5 */
 }
 
 /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6) {
+  if (htim->Instance == TIM6)
+  {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
@@ -535,31 +548,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  file: The file name as string.
-  * @param  line: The line in file as a number.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @param  file: The file name as string.
+ * @param  line: The line in file as a number.
+ * @retval None
+ */
 void _Error_Handler(char *file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  while(1)
+  while (1)
   {
   }
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
+void assert_failed(uint8_t *file, uint32_t line)
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
@@ -568,11 +581,11 @@ void assert_failed(uint8_t* file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
