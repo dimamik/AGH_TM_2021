@@ -395,6 +395,8 @@ static void MX_GPIO_Init(void)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	BaseType_t xHigherPriorityTaskWoken;
+  // 
+  xQueueSendFromISR(loopQueue, &GPIO_Pin, &xHigherPriorityTaskWoken);
 	xSemaphoreGiveFromISR( sem_EXTI, &xHigherPriorityTaskWoken );
 	portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
