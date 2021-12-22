@@ -445,7 +445,7 @@ static void messageTask(void *p)
   while (1)
   {
 
-    // TODO Zad 1
+    // TODO Uncomment for Zad 1, and comment for zad 2
 
     vTaskDelayUntil(&xLastWakeTime, 1000);
     xprintf("Current systime is: %05d\n", (int)xTaskGetTickCount());

@@ -119,9 +119,8 @@ void DMA1_Stream3_IRQHandler(void)
   /* USER CODE END DMA1_Stream3_IRQn 1 */
 }
 
-
-
-
+// TODO Uncomment for zad 3
+// extern void uart_rxirq_callback(void);
 
 /**
 * @brief This function handles USART3 global interrupt.
