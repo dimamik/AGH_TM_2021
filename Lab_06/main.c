@@ -628,6 +628,7 @@ void StartDefaultTask(void const * argument)
 					char readChar;
 
 					readChar = inkey();
+          // TODOQ Po co ten delay?
 					vTaskDelay(100);
 
 					xprintf("your char: %c\n", readChar); // comment later,
@@ -642,7 +643,7 @@ void StartDefaultTask(void const * argument)
 
 				filename[i] = '\0'; // koniec nazwy pliku (znak konca napisu)
 
-				const int FILE_CONTENT_MAX_SIZE = 1000; // ograniczenie do 1 KB zgodnie z poleceniem
+				const int FILE_CONTENT_MAX_SIZE = 1024; // ograniczenie do 1 KB zgodnie z poleceniem
 				char fileContent[FILE_CONTENT_MAX_SIZE];
 
 				FIL file;
@@ -713,9 +714,10 @@ void StartDefaultTask(void const * argument)
 				char fileContent[FILE_CONTENT_MAX_SIZE];
 				sprintf(fileContent, "TESTtest");
 
-				// todo: sprawdzic czy faktycznie wpisze sie 4MiB do pliku
+				// TODO: sprawdzic czy faktycznie wpisze sie 4MiB do pliku
 
 				// pomiar szybkosci zapisu
+        // TODO Uwaga, tu zapisujemy nie 4MB a 4*1024*1024 razy 8B (bo rozmiar tekstu)
 				TickType_t start = xTaskGetTickCount();
 				for(int i = 0; i < 4096 * 1024 / FILE_CONTENT_MAX_SIZE; i++){
 					f_write(&file, fileContent, FILE_CONTENT_MAX_SIZE, &byte_count);
