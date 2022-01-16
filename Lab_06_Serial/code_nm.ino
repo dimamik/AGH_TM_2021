@@ -16,9 +16,10 @@ void uart_init(void)
     UBRRL = BAUDRATE;                                    // set baud rate
     UCSRB |= (1 << TXEN) | (1 << RXEN);                  // enable receiver and transmitter
 
-    // TODO Set the frame format to 8 data bits, no parity, 1 stop bit
+    // TODO Set the frame format to 8 data bits, no parity, 1 stop bit ?? This is not for sure :)
     UCSRC |= (1 << URSEL) | (1 << UCSZ0) | (1 << UCSZ1); // 8bit data format
 }
+
 
 // function to send data - NOT REQUIRED FOR THIS PROGRAM IMPLEMENTATION
 void uart_transmit(unsigned char data)
@@ -43,6 +44,21 @@ setup()
 
     uart_init(); // initialize UART
 }
+
+// TODO For 3.5
+// This part is a little bit tricky,
+// But we need by hand to set digitalWrite to LOW and High to transmit the data
+// Instead of using 1000 ms we need to use BAUDRATE for this concrete implementation
+// setup_v2(){
+//     pinMode(4, OUTPUT);
+// }
+
+// loop_v2(){
+//     digitalWrite(4, HIGH); // sets the digital pin 13 on
+//     delay(1000);            // waits for a second
+//     digitalWrite(4, LOW);  // sets the digital pin 13 off
+//     delay(1000);            // waits for a second
+// }
 
 loop()
 {
