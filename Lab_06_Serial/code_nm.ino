@@ -15,6 +15,8 @@ void uart_init(void)
     UBRRH = (BAUDRATE >> 8);
     UBRRL = BAUDRATE;                                    // set baud rate
     UCSRB |= (1 << TXEN) | (1 << RXEN);                  // enable receiver and transmitter
+
+    // TODO Set the frame format to 8 data bits, no parity, 1 stop bit
     UCSRC |= (1 << URSEL) | (1 << UCSZ0) | (1 << UCSZ1); // 8bit data format
 }
 
