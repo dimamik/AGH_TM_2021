@@ -1,86 +1,94 @@
-/*
-  ASCII table
+#include "avr/io.h"
 
-  Prints out byte values in all possible formats:
-  - as raw binary values
-  - as ASCII-encoded decimal, hex, octal, and binary values
+#define FOSC 1843200 // Clock Speed
+#define BAUD 9600
+#define BAUD 2400
+#define MYUBRR (FOSC / 16 / BAUD - 1)
+#define BAUDRATE ((F_CPU) / (BAUD * 16UL) - 1)
 
-  For more on ASCII, see http://www.asciitable.com and http://en.wikipedia.org/wiki/ASCII
+void main(void)
+{
+  // TODO Our code there
+  USART_Init(MYUBRR);
+} // main
 
-  The circuit: No external hardware needed.
+// 5 to 8 Data Bits
 
-  created 2006
-  by Nicholas Zambetti <http://www.zambetti.com>
-  modified 9 Apr 2012
-  by Tom Igoe
+void USART_Init(unsigned int ubrr)
+{
+  /* Set baud rate */
+  UBRRH = (unsigned char)(ubrr >> 8);
+  UBRRL = (unsigned char)ubrr;
+  /* Enable receiver and transmitter */
+  UCSRB = (1 << RXEN) | (1 << TXEN);
+  /* Set frame format: 8data, 2stop bit */
+  // UCSRC = (1 << USBS) | (3 << UCSZ0);
+  UCSRC |= (1 << URSEL) | (1 << UCSZ0) | (1 << UCSZ1);
+} // USART_Init
 
-  This example code is in the public domain.
-
-  https://www.arduino.cc/en/Tutorial/BuiltInExamples/ASCIITable
-*/
-
-void printToSerials(String string){
-  Serial.print(string);
-  Serial1.print(string);
+void USART_Transmit_v1(unsigned char data)
+{
+  /* Wait for empty transmit buffer */
+  while (!(UCSRnA & (1 << UDREn)))
+    ;
+  /* Put data into buffer, sends the data */
+  UDRn = data;
+}
+unsigned char USART_Receive_v1(void)
+{
+  /* Wait for data to be received */
+  while (!(UCSRnA & (1 << RXCn)))
+    ;
+  /* Get and return received data from buffer */
+  return UDRn;
 }
 
-void setup() {
-  //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  Serial1.begin(9600);
-  while (!Serial or !Serial1) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+// This is for 9 Data bits
 
-  // prints title with ending line break
-  printToSerials("ASCII Table ~ Character Map\n");
+void USART_Transmit_v2(unsigned int data)
+{
+  /* Wait for empty transmit buffer */
+  while (!(UCSRnA & (1 << UDREn))) )
+;
+  /* Copy 9th bit to TXB8 */
+  UCSRnB &= ~(1 << TXB8);
+  if (data & 0x0100)
+    UCSRnB |= (1 << TXB8);
+  /* Put data into buffer, sends the data */
+  UDRn = data;
 }
 
-// first visible ASCIIcharacter '!' is number 33:
-int thisByte = 33;
-// you can also write ASCII characters in single quotes.
-// for example, '!' is the same as 33, so you could also use this:
-// int thisByte = '!';
+unsigned int USART_Receive_v2(void)
+{
+  unsigned char status, resh, resl;
+  /* Wait for data to be received */
+  while (!(UCSRnA & (1 << RXCn)))
+    ;
+  /* Get status and 9th bit, then data */
+  /* from buffer */
+  status = UCSRnA;
+  resh = UCSRnB;
+  resl = UDRn;
+  /* If error, return -1 */
+  if (status & (1 << FEn) | (1 << DORn) | (1 << UPEn))
+    return -1;
+  /* Filter the 9th bit, then return */
+  resh = (resh >> 1) & 0x01;
+  return ((resh << 8) | resl);
+}
 
-void loop() {
-  // prints value unaltered, i.e. the raw binary version of the byte.
-  // The Serial Monitor interprets all bytes as ASCII, so 33, the first number,
-  // will show up as '!'
-  Serial.write(thisByte);
-  Serial1.write(thisByte);
-  
-  printToSerials(", dec: ");
-  
-  // prints value as string as an ASCII-encoded decimal (base 10).
-  // Decimal is the default format for Serial.print() and Serial.println(),
-  // so no modifier is needed:
-  Serial.print(thisByte);
-  Serial1.print(thisByte);
-  // But you can declare the modifier for decimal if you want to.
-  // this also works if you uncomment it:
+// This is for all
+void USART_Flush(void)
+{
+  unsigned char dummy;
+  while (UCSRnA & (1 << RXCn))
+    dummy = UDRn;
+}
 
-  // Serial.print(thisByte, DEC);
+void setup()
+{
+}
 
-
-  printToSerials(", hex: ");
-  // prints value as string in hexadecimal (base 16):
- Serial.print(thisByte, HEX);
-Serial1.print(thisByte, HEX);
-  printToSerials(", oct: ");
-  // prints value as string in octal (base 8);
-  Serial.print(thisByte, OCT);
-Serial1.print(thisByte, OCT);
-  printToSerials(", bin: ");
-  // prints value as string in binary (base 2) also prints ending line break:
-  Serial.println(thisByte, BIN);
-Serial1.println(thisByte, BIN);
-  // if printed last visible character '~' or 126, stop:
-  if (thisByte == 126) {    // you could also use if (thisByte == '~') {
-    // This loop loops forever and does nothing
-    while (true) {
-      continue;
-    }
-  }
-  // go on to the next character
-  thisByte++;
+void loop()
+{
 }
